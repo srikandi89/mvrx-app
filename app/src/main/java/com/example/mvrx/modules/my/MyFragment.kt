@@ -47,8 +47,16 @@ class MyFragment : BaseMvRxFragment() {
         return inflater.inflate(R.layout.fragment_my, container, false)
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        title.setOnClickListener() {
+            viewModel.incrementCounter()
+        }
+    }
+
     override fun invalidate() = withState(viewModel) { state ->
-        title.text = state.title
+        title.text = state.titleWithCount
     }
 
     companion object {
