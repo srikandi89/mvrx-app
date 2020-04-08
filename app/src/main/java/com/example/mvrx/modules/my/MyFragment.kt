@@ -48,20 +48,6 @@ class MyFragment : BaseMvRxFragment() {
                 is Fail -> temp.text = "Failed"
             }
         }
-
-        viewModel.selectSubscribe(MyState::temperature) {
-            Log.d("MyFragmentState", "Temperature: ${it()}")
-        }
-
-        viewModel.selectSubscribe(MyState::titleWithCount) {
-            Log.d("MyFragmentState", "Counter: $it")
-        }
-
-        viewModel.asyncSubscribe(MyState::temperature, onSuccess = { temperature ->
-            Log.d("MyFragmentState", "OnSuccess: $temperature")
-        }, onFail = { error ->
-            Log.d("MyFragmentState", "onFail: $error")
-        })
     }
 
     override fun onCreateView(
