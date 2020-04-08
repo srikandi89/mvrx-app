@@ -6,7 +6,6 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import com.airbnb.mvrx.*
 
 import com.example.mvrx.R
@@ -37,16 +36,32 @@ class MyFragment : BaseMvRxFragment() {
             param2 = it.getString(ARG_PARAM2)
         }
 
+        viewModel.incrementCounter()
+
         viewModel.subscribe { state ->
             Log.d("MyFragmentState", "State = $state")
 
             when(state.temperature) {
-                is Uninitialized -> temperature.text = "N/A"
-                is Loading -> temperature.text = "Loading"
-                is Success -> temperature.text = "${state.temperature()} degrees"
-                is Fail -> temperature.text = "Failed"
+                is Uninitialized -> temp.text = "N/A"
+                is Loading -> temp.text = "Loading"
+                is Success -> temp.text = "${state.temperature()} degrees"
+                is Fail -> temp.text = "Failed"
             }
         }
+
+        viewModel.selectSubscribe(MyState::temperature) {
+            Log.d("MyFragmentState", "Temperature: ${it()}")
+        }
+
+        viewModel.selectSubscribe(MyState::titleWithCount) {
+            Log.d("MyFragmentState", "Counter: $it")
+        }
+
+        viewModel.asyncSubscribe(MyState::temperature, onSuccess = { temperature ->
+            Log.d("MyFragmentState", "OnSuccess: $temperature")
+        }, onFail = { error ->
+            Log.d("MyFragmentState", "onFail: $error")
+        })
     }
 
     override fun onCreateView(
