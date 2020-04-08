@@ -36,17 +36,10 @@ class MyFragment : BaseMvRxFragment() {
             param2 = it.getString(ARG_PARAM2)
         }
 
-        viewModel.incrementCounter()
-
         viewModel.subscribe { state ->
             Log.d("MyFragmentState", "State = $state")
 
-            when(state.temperature) {
-                is Uninitialized -> temp.text = "N/A"
-                is Loading -> temp.text = "Loading"
-                is Success -> temp.text = "${state.temperature()} degrees"
-                is Fail -> temp.text = "Failed"
-            }
+            title.text = state.titleWithCount
         }
     }
 
@@ -61,13 +54,17 @@ class MyFragment : BaseMvRxFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        title.setOnClickListener() {
+        temp.setOnClickListener() {
             viewModel.fetchTemperature()
+        }
+
+        title.setOnClickListener() {
+            viewModel.incrementCounter()
         }
     }
 
     override fun invalidate() = withState(viewModel) { state ->
-        title.text = when(state.temperature) {
+        temp.text = when(state.temperature) {
             is Uninitialized -> "Temperature Uninitialized"
             is Loading -> "Loading..."
             is Success -> "Weather: ${state.temperature()} degrees"
