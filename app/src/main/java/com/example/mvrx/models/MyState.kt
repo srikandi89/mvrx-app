@@ -7,6 +7,8 @@ import kotlin.random.Random
 
 data class MyState(
     val title: String = "Hello World ${Random.nextInt(100)}",
-    val count: Int = 0) : MvRxState {
+    val count: Int = 0,
+    val temperature: Async<Int> = Uninitialized
+) : MvRxState {
     val titleWithCount = "$title - $count"
 }

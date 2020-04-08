@@ -6,9 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import com.airbnb.mvrx.BaseMvRxFragment
-import com.airbnb.mvrx.fragmentViewModel
-import com.airbnb.mvrx.withState
+import com.airbnb.mvrx.*
 
 import com.example.mvrx.R
 import com.example.mvrx.models.MyState
@@ -51,12 +49,17 @@ class MyFragment : BaseMvRxFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         title.setOnClickListener() {
-            viewModel.incrementCounter()
+            viewModel.fetchTemperature()
         }
     }
 
     override fun invalidate() = withState(viewModel) { state ->
-        title.text = state.titleWithCount
+        title.text = when(state.temperature) {
+            is Uninitialized -> "Temperature Uninitialized"
+            is Loading -> "Loading..."
+            is Success -> "Weather: ${state.temperature()} degrees"
+            is Fail -> "Failed to load weather data"
+        }
     }
 
     companion object {
