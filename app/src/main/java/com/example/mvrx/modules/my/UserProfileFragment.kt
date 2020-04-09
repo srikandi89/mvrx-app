@@ -43,7 +43,7 @@ class UserProfileViewModel(
             state: UserProfileState
         ): UserProfileViewModel? {
             val userId = viewModelContext.args<UserProfileArgs>().userId
-            val userRepository = viewModelContext.app<MvRxApplication>().userRepository
+            val userRepository = viewModelContext.app<MvRxApplication>().component.userRepository()
             return UserProfileViewModel(state, userId, userRepository)
         }
     }

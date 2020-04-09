@@ -58,4 +58,7 @@ dependencies {
     implementation "androidx.navigation:navigation-dynamic-features-fragment:$navigation_version"
     androidTestImplementation "androidx.navigation:navigation-testing:$navigation_version"
 
+    implementation "com.google.dagger:dagger:$dagger_version"
+    kapt "com.google.dagger:dagger-compiler:$dagger_version"
+
 }
