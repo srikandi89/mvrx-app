@@ -5,6 +5,10 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'androidx.navigation.safeargs'
 apply from: "$rootDir/version.gradle"
 
+androidExtensions {
+    experimental = true
+}
+
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.3"

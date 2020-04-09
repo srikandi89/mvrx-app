@@ -1,14 +1,19 @@
 package com.example.mvrx.modules.my
 
 import android.os.Bundle
+import android.os.Parcelable
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.airbnb.mvrx.*
+import com.example.mvrx.MvRxApplication
 
 import com.example.mvrx.R
 import com.example.mvrx.core.MvRxViewModel
+import com.example.mvrx.repository.User
+import com.example.mvrx.repository.UserRepository
+import kotlinx.android.parcel.Parcelize
 import kotlinx.android.synthetic.main.fragment_user_profile.*
 import java.lang.IllegalArgumentException
 
@@ -23,26 +28,37 @@ private const val ARG_PARAM2 = "param2"
  * create an instance of this fragment.
  */
 
-data class UserProfileState(val userId: String) : MvRxState
+data class UserProfileState(val user: Async<User> = Uninitialized) : MvRxState
 
-class UserProfileViewModel(initialState: UserProfileState) : MvRxViewModel<UserProfileState>(initialState) {
+class UserProfileViewModel(
+    initialState: UserProfileState,
+    private val userId: String,
+    private val userRepository: UserRepository) : MvRxViewModel<UserProfileState>(initialState) {
+
+    fun fetchUser() = userRepository.getUser(userId).execute { copy(user = it) }
+
     companion object : MvRxViewModelFactory<UserProfileViewModel, UserProfileState> {
-        override fun initialState(viewModelContext: ViewModelContext): UserProfileState? {
-            val userId = (viewModelContext as FragmentViewModelContext).fragment<UserProfileFragment>().getUserId()
-            return UserProfileState(userId)
+        override fun create(
+            viewModelContext: ViewModelContext,
+            state: UserProfileState
+        ): UserProfileViewModel? {
+            val userId = viewModelContext.args<UserProfileArgs>().userId
+            val userRepository = viewModelContext.app<MvRxApplication>().userRepository
+            return UserProfileViewModel(state, userId, userRepository)
         }
     }
 }
+
+@Parcelize
+data class UserProfileArgs(val userId: String) : Parcelable
 
 class UserProfileFragment : BaseMvRxFragment() {
 
     private val viewModel: UserProfileViewModel by fragmentViewModel()
 
     override fun invalidate() = withState(viewModel) {
-        title.text = it.userId
+        title.text = it.user.toString()
     }
-
-    fun getUserId() = arguments?.getString(ARG_USER_ID) ?: throw IllegalArgumentException("User id have to be provided")
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -52,14 +68,21 @@ class UserProfileFragment : BaseMvRxFragment() {
         return inflater.inflate(R.layout.fragment_user_profile, container, false)
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        title.setOnClickListener() {
+            viewModel.fetchUser()
+        }
+    }
+
     companion object {
         private const val ARG_USER_ID = "user_id"
 
         fun newInstance(userId: String) : UserProfileFragment {
             val fragment = UserProfileFragment()
             val args = Bundle()
-            args.putString(ARG_USER_ID, userId)
-
+            args.putParcelable(MvRx.KEY_ARG, UserProfileArgs("34"))
             fragment.arguments = args
             return fragment
         }
